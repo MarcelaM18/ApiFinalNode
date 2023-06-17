@@ -1,8 +1,12 @@
 const {Router} = require('express')
 const route = Router()
 
-const {categoriaGet, categoriaPost, categoriaPut, categoriaDelete} = require('../controllers/categoria')
+const {categoriaGet,
+     categoriaPost, 
+     categoriaPut, 
+     categoriaDelete} = require('../controllers/categoria')
 
+route.get('/:id', categoriaGet)
 route.get('/',categoriaGet)
 route.post('/',categoriaPost)
 route.put('/',categoriaPut)

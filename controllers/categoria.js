@@ -1,15 +1,20 @@
 const {response} = require('express')
 const Categoria = require('../models/categoria')
 
+
 const categoriaGet = async(req, res = response)=> {
-
-    const {nombre} = req.query
-
-    const categoria = await Categoria.find(nombre)
-
+    const _id = req.query.id
+    if(_id != undefined){
+        const categorias = await Categoria.findById(_id)
     res.json({
-        categoria
+        categorias
     })
+    return
+}
+const categorias = await Categoria.find()
+res.json({
+    categorias
+})
 }
 
 //registrar
@@ -40,22 +45,37 @@ const categoriaPost = async(req, res = response) => {
 }
 
 const categoriaPut = async(req, res = response) => {
-    const {id} = req.params
+    let id = null;
+    if(req.query != null && req.query.id != null){
+        id = req.query.id
+    }
     const {nombre, estado} = req.body
     let mensaje = ''
-
     try{
-        const categoria = await Categoria.findOneAndUpdate({id:id},{ nombre: nombre,estado:estado})
-        mensaje = 'La modificación se efectuó exitosamente'
-    }
-    catch(error){
-        mensaje = 'Se presentaron problemas en la modificación.'
+        if(id != null){
+            const update = {nombre: nombre, estado:estado}
+            const categoria = await Categoria.findByIdAndUpdate(
+                id,
+                update,
+                {new: true, runValidators: true}
+                )
+                if(categoria){
+                    mensaje = "La modfificacion se efectuo correctamente"
+                }else{
+                    mensaje = "La categoria no fue encontrada"
+                }
+            
+        }
+    }catch(error){
+        console.error(error)
+        mensaje = error.message
     }
 
     res.json({
         msg: mensaje
     })
 }
+
 
 const categoriaDelete = async(req, res = response) => {
 

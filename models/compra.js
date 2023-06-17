@@ -45,6 +45,10 @@ const CompraSchema = Schema({
           type: Number,
           required: [true, 'El campo precioCompra es requerido'],
         },
+        cantidad:{
+          type:Number,
+          required: [true, 'El campo cantidad es requerido'],
+        },
         precioVenta: {
           type: Number,
           required: [true, 'El campo precioVenta es requerido'],
@@ -59,12 +63,13 @@ const CompraSchema = Schema({
 CompraSchema.pre('save', function (next) {
   let total = 0;
   for (let i = 0; i < this.detalleCompra.length; i++) {
-    total += this.detalleCompra[i].precioCompra;
+    const detalle = this.detalleCompra[i];
+    const subtotal = detalle.precioCompra * detalle.cantidad;
+    total += subtotal;
   }
   this.totalCompra = total;
   next();
-})
-
+});
  
 
 

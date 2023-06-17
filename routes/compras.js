@@ -3,6 +3,7 @@ const route = Router()
 
 const {compraGet, compraPost, compraPut, compraDelete} = require('../controllers/compra')
 
+route.get('/:id',compraGet)
 route.get('/',compraGet)
 route.post('/',compraPost)
 route.put('/',compraPut)

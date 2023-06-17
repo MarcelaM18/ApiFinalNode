@@ -2,19 +2,70 @@ const {response} = require('express')
 
 const Compra = require('../models/compra')
 
-//Listar
-
-const compraGet = async(req, res = response)=> {
-
-    const {proveedor} = req.query
-
-    const compras = await Compra.find(proveedor)
-
+const compraGet = async (req, res = response) => {
+    const _id = req.query.id;
+    try {
+      if (_id !== undefined) {
+        const compra = await Compra.findById(_id);
+        if (compra) {
+          res.json({
+            compras: compra,
+          });
+        } else {
+          res.status(404).json({
+            msg: "La compra no fue encontrada",
+          });
+        }
+      } else {
+        const compras = await Compra.find();
+        res.json({
+          compras,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        msg: "Error en el servidor",
+      });
+    }
+  };
+  
+  const compraPut = async (req, res = response) => {
+    const { id } = req.body;
+    const { proveedor, numFactura, fechaCompra, fechaRegistro, estado, detalleCompra } = req.body;
+    let mensaje = "";
+  
+    try {
+      const compra = await Compra.findById(id);
+      if (compra) {
+        compra.proveedor = proveedor;
+        compra.numFactura = numFactura;
+        compra.fechaCompra = fechaCompra;
+        compra.fechaRegistro = fechaRegistro;
+        compra.estado = estado;
+        compra.detalleCompra = detalleCompra;
+  
+        const totalCompra = detalleCompra.reduce((total, producto) => {
+          return total + producto.precioCompra * producto.cantidad;
+        }, 0);
+        compra.totalCompra = totalCompra;
+  
+        await compra.save();
+  
+        mensaje = "La modificación se efectuó correctamente";
+      } else {
+        mensaje = "La compra no fue encontrada";
+      }
+    } catch (error) {
+      console.error(error);
+      mensaje = error.message;
+    }
+  
     res.json({
-        compras
-    })
-}
-
+      msg: mensaje,
+    });
+  };
+  
 //agregar
 
 const compraPost = async(req,res=response)=>{
@@ -60,30 +111,7 @@ const compraPost = async(req,res=response)=>{
                         msg:'La inserción no fue exitosa ocurrió un error '
                     })
             }
-        }        
-//modificar
-const compraPut = async (req, res = response)=>{
-    const {id} = req.params
-    const {proveedor,numFactura,fechaCompra,fechaRegistro, 
-        estado, detalleCompra} = req.body
-
-    let totalCompra = 0;
-    detalleCompra.forEach(detalle => {
-    totalCompra += detalle.precioCompra;
-    })
-    try{
-        const compra = await Compra.findOneAndUpdate({id:id},{ proveedor:proveedor,numFactura:numFactura,fechaCompra:fechaCompra,fechaRegistro:fechaRegistro, 
-            estado:estado, detalleCompra:detalleCompra, totalCompra})
-        mensaje = 'La modificación se efectuó exitosamente'
-    }
-    catch(error){
-        mensaje = 'Se presentaron problemas en la modificación.'
-    }
-
-    res.json({
-        msg: mensaje
-    })    
-}
+        }   
 
 //eliminar
 const compraDelete = async (req, res = response)=>{
