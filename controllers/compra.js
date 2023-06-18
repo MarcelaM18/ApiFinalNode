@@ -2,49 +2,42 @@ const {response} = require('express')
 
 const Compra = require('../models/compra')
 
-const compraGet = async (req, res = response) => {
-    const _id = req.query.id;
-    try {
-      if (_id !== undefined) {
-        const compra = await Compra.findById(_id);
-        if (compra) {
-          res.json({
-            compras: compra,
-          });
-        } else {
-          res.status(404).json({
-            msg: "La compra no fue encontrada",
-          });
-        }
-      } else {
-        const compras = await Compra.find();
-        res.json({
-          compras,
-        });
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        msg: "Error en el servidor",
-      });
-    }
-  };
-  
+const compraGet = async(req, res = response)=> {
+  const _id = req.query.id
+  if(_id != undefined){
+      const compras = await Compra.findById(_id)
+  res.json({
+      compras
+  })
+  return
+}
+const compras = await Compra.find()
+res.json({
+  compras
+})
+}
+
+
+
   const compraPut = async (req, res = response) => {
-    const { id } = req.body;
+    let id = null;
+    if(req.query != null && req.query.id != null){
+        id = req.query.id
+    }
     const { proveedor, numFactura, fechaCompra, fechaRegistro, estado, detalleCompra } = req.body;
     let mensaje = "";
   
     try {
-      const compra = await Compra.findById(id);
-      if (compra) {
-        compra.proveedor = proveedor;
-        compra.numFactura = numFactura;
-        compra.fechaCompra = fechaCompra;
-        compra.fechaRegistro = fechaRegistro;
-        compra.estado = estado;
-        compra.detalleCompra = detalleCompra;
+      const compra = await Compra.findByIdAndUpdate(id, {
+        proveedor,
+        numFactura,
+        fechaCompra,
+        fechaRegistro,
+        estado,
+        detalleCompra
+      });
   
+      if (compra) {
         const totalCompra = detalleCompra.reduce((total, producto) => {
           return total + producto.precioCompra * producto.cantidad;
         }, 0);
@@ -65,6 +58,7 @@ const compraGet = async (req, res = response) => {
       msg: mensaje,
     });
   };
+  
   
 //agregar
 
