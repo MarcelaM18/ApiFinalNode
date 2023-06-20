@@ -11,6 +11,10 @@ const CategoriaSchema = Schema({
         default: true,
         required:[true, 'El campo estado es requerido']
     }
+    ,
+    observacion:{
+        type: String
+    }
 })
 
 ;

@@ -25,11 +25,11 @@ const categoriaPut = async(req, res = response) => {
     if(req.query != null && req.query.id != null){
         id = req.query.id
     }
-    const {nombre, estado} = req.body
+    const {nombre, estado, observacion} = req.body
     let mensaje = ''
     try{
         if(id != null){
-            const update = {nombre: nombre, estado:estado}
+            const update = {nombre: nombre, estado:estado, observacion:observacion}
             const categoria = await Categoria.findByIdAndUpdate(
                 id,
                 update,
